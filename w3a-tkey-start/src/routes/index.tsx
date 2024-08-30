@@ -136,6 +136,7 @@ const Home: Component = () => {
         skipSw: true,
         skipPrefetch: true,
       });
+      console.log("serviceProvider.init() complete!");
 
       // Init is required for Redirect Flow but skip fetching sw.js and redirect.html )
       if (
