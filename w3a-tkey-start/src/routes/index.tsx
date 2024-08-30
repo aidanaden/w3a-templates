@@ -265,7 +265,10 @@ const Home: Component = () => {
       }
       const seed_arr = new Uint8Array(seed);
       const ed25519key = Keypair.fromSeed(seed_arr);
-      console.log({ ed25519key });
+      console.log({
+        public: ed25519key.publicKey.toString(),
+        private: ed25519key.secretKey.toString(),
+      });
 
       // const privateKeyProvider = new SolanaPrivateKeyProvider({
       //   config: {
