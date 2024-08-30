@@ -150,6 +150,8 @@ const Home: Component = () => {
           replaceUrl: true,
         });
 
+        console.log("getRedirectResult complete!");
+
         const res = result.result as TorusAggregateLoginResponse;
         const sessionId = SessionManager.generateRandomSessionKey();
         localStorage.setItem("session_id", sessionId);
@@ -163,6 +165,8 @@ const Home: Component = () => {
           "hex",
         );
 
+        console.log("postboxKey storing complete!");
+
         (
           tKey.serviceProvider as TorusServiceProvider
         ).customAuthInstance.storageHelper.storeLoginDetails(
@@ -170,20 +174,32 @@ const Home: Component = () => {
           sessionId,
         );
 
+        console.log("storeLoginDetails complete!");
+
         // Initialization of tKey
         const result2 = await tKey.initialize(); // 1/2 flow
 
+        console.log("tkey.initialize() complete!");
+
         if (result2.requiredShares > 0) {
           await (tKey.modules.webStorage as any).inputShareFromWebStorage();
+
+          console.log("inputShareFromWebStorage() complete!");
         }
         await tKey.reconstructKey();
+
+        console.log("reconstructKey() complete!");
 
         const sessionManagerInstance = new SessionManager({ sessionId });
         const data = tKey.toJSON();
         const sessionData = { ...data, userInfo: res.userInfo[0] };
         console.log({ session_data: sessionData });
         await sessionManagerInstance.createSession(sessionData);
+
+        console.log("createSession() complete!");
         await tKey.syncLocalMetadataTransitions();
+
+        console.log("syncLocalMetadataTransitions() complete!");
 
         const { requiredShares } = tKey.getKeyDetails();
         console.log({ requiredShares });
@@ -196,6 +212,8 @@ const Home: Component = () => {
         } else {
           await reconstructKey();
         }
+
+        console.log("reconstructKey() complete!");
 
         batch(() => {
           setTKeyInitialised(true);
