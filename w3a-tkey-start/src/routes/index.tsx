@@ -188,6 +188,7 @@ const Home: Component = () => {
           console.log("inputShareFromWebStorage() complete!");
         }
         await tKey.reconstructKey();
+        await tKey.syncLocalMetadataTransitions();
 
         console.log("reconstructKey() complete!");
 
@@ -198,7 +199,6 @@ const Home: Component = () => {
         await sessionManagerInstance.createSession(sessionData);
 
         console.log("createSession() complete!");
-        await tKey.syncLocalMetadataTransitions();
 
         console.log("syncLocalMetadataTransitions() complete!");
 
