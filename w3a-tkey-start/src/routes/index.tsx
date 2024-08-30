@@ -19,8 +19,8 @@ import { BN } from "bn.js";
 import { TorusStorageLayer } from "@tkey/storage-layer-torus";
 // import { SolanaPrivateKeyProvider } from "@web3auth/solana-provider/dist/solanaProvider.esm";
 import { SessionManager } from "@toruslabs/session-manager";
-import { getED25519Key } from "@toruslabs/openlogin-ed25519";
 import { AggregateLoginParams } from "@toruslabs/customauth";
+import { Keypair } from "@solana/web3.js";
 
 // import SolanaRpc from "./rpc";
 
@@ -132,11 +132,14 @@ const Home: Component = () => {
         // console.log("existing session user info: ", { res });
       }
 
-      await (tKey.serviceProvider as TorusServiceProvider).init({
-        skipSw: true,
-        skipPrefetch: true,
-      });
-      console.log("serviceProvider.init() complete!");
+      try {
+        await (tKey.serviceProvider as TorusServiceProvider).init({
+          skipSw: true,
+          skipPrefetch: true,
+        });
+      } catch (e) {
+        console.log("serviceProvider.init() error: ", { e });
+      }
 
       // Init is required for Redirect Flow but skip fetching sw.js and redirect.html )
       if (
@@ -168,12 +171,16 @@ const Home: Component = () => {
 
         console.log("postboxKey storing complete!");
 
-        (
-          tKey.serviceProvider as TorusServiceProvider
-        ).customAuthInstance.storageHelper.storeLoginDetails(
-          { args: result.args, method: "triggerAggregateLogin" },
-          sessionId,
-        );
+        try {
+          (
+            tKey.serviceProvider as TorusServiceProvider
+          ).customAuthInstance.storageHelper.storeLoginDetails(
+            { args: result.args, method: "triggerAggregateLogin" },
+            sessionId,
+          );
+        } catch (e) {
+          console.error("storeLoginDetails() error: ", { e });
+        }
 
         console.log("storeLoginDetails complete!");
 
@@ -183,9 +190,17 @@ const Home: Component = () => {
         console.log("tkey.initialize() complete!");
 
         if (result2.requiredShares > 0) {
-          await (tKey.modules.webStorage as any).inputShareFromWebStorage();
+          try {
+            await (tKey.modules.webStorage as any).inputShareFromWebStorage();
+          } catch (e) {
+            console.error("inputShareFromWebStorage() error: ", { e });
+          }
+        }
 
-          console.log("inputShareFromWebStorage() complete!");
+        try {
+          await tKey.reconstructKey();
+        } catch (e) {
+          console.error("reconstructKey() error: ", { e });
         }
         await tKey.reconstructKey();
         await tKey.syncLocalMetadataTransitions();
@@ -196,7 +211,12 @@ const Home: Component = () => {
         const data = tKey.toJSON();
         const sessionData = { ...data, userInfo: res.userInfo[0] };
         console.log({ session_data: sessionData });
-        await sessionManagerInstance.createSession(sessionData);
+
+        try {
+          await sessionManagerInstance.createSession(sessionData);
+        } catch (e) {
+          console.error("createSession() error: ", { e });
+        }
 
         console.log("createSession() complete!");
 
@@ -243,11 +263,8 @@ const Home: Component = () => {
         console.error("failed to reconstruct ed25519 seed!");
         return;
       }
-
-      const ed25519key = getED25519Key(
-        reconstructedKey.secp256k1Key.toString("hex"),
-      ).sk.toString("hex");
-
+      const seed_arr = new Uint8Array(seed);
+      const ed25519key = Keypair.fromSeed(seed_arr);
       console.log({ ed25519key });
 
       // const privateKeyProvider = new SolanaPrivateKeyProvider({
