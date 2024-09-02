@@ -1,9 +1,5 @@
-import { Web3Auth, decodeToken } from "@web3auth/single-factor-auth";
-import {
-  CHAIN_NAMESPACES,
-  WEB3AUTH_NETWORK,
-  IProvider,
-} from "@web3auth/base";
+import { Web3Auth } from "@web3auth/single-factor-auth";
+import { CHAIN_NAMESPACES, WEB3AUTH_NETWORK, IProvider } from "@web3auth/base";
 import { SolanaPrivateKeyProvider } from "@web3auth/solana-provider";
 import {
   Show,
@@ -21,19 +17,16 @@ const web3AuthClientId =
   "BPi5PB_UiIZ-cPz1GtV5i1I2iOSOHuimiXBI0e-Oe_u6X3oVAbCiAZOTEBtTXw4tsluTITPqA8zMsfxIKMjiqNQ"; // get from https://dashboard.web3auth.io
 
 // Firebase libraries for custom authentication
-import { initializeApp } from "firebase/app";
-import { GoogleAuthProvider, getAuth, signInWithPopup, UserCredential } from "firebase/auth";
-
-const verifier = "w3a-firebase-demo";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyB0nd9YsPLu-tpdCrsXn8wgsWVAiYEpQ_E",
-  authDomain: "web3auth-oauth-logins.firebaseapp.com",
-  projectId: "web3auth-oauth-logins",
-  storageBucket: "web3auth-oauth-logins.appspot.com",
-  messagingSenderId: "461819774167",
-  appId: "1:461819774167:web:e74addfb6cc88f3b5b9c92",
-};
+// const verifier = "w3a-firebase-demo";
+//
+// const firebaseConfig = {
+//   apiKey: "AIzaSyB0nd9YsPLu-tpdCrsXn8wgsWVAiYEpQ_E",
+//   authDomain: "web3auth-oauth-logins.firebaseapp.com",
+//   projectId: "web3auth-oauth-logins",
+//   storageBucket: "web3auth-oauth-logins.appspot.com",
+//   messagingSenderId: "461819774167",
+//   appId: "1:461819774167:web:e74addfb6cc88f3b5b9c92",
+// };
 
 // const aggregateVerifierIdentifier = "w3a-universal-verifier";
 // const redirectUrl = "https://w3a-nomodal-start.pages.dev";
@@ -46,7 +39,7 @@ export const W3Auth: VoidComponent = () => {
     return web3?.connected ?? false;
   });
 
-  const app = initializeApp(firebaseConfig);
+  // const app = initializeApp(firebaseConfig);
 
   const status = createMemo(() => {
     const web3 = web3auth();
@@ -100,7 +93,6 @@ export const W3Auth: VoidComponent = () => {
       await web3auth.init();
       setWeb3Auth(web3auth);
       setProvider(web3auth.provider);
-    
     } catch (error) {
       console.error(error);
     }
@@ -113,41 +105,28 @@ export const W3Auth: VoidComponent = () => {
     }
   }
 
-  const signInWithGoogle = async (): Promise<UserCredential> => {
-    try {
-      const auth = getAuth(app);
-      const googleProvider = new GoogleAuthProvider();
-      const res = await signInWithPopup(auth, googleProvider);
-      console.log(res);
-      return res;
-    } catch (err) {
-      console.error(err);
-      throw err;
-    }
-  };
-
   const login = async () => {
     console.log("login!");
-    const auth = web3auth();
-    if (!auth) {
-      console.log("missing web3 auth: ", { auth });
-      uiConsole("web3auth not initialized yet");
-      return;
-    }
-
-   // login with firebase
-    const loginRes = await signInWithGoogle();
-    // get the id token from firebase
-    const idToken = await loginRes.user.getIdToken(true);
-    const { payload } = decodeToken(idToken);
-
-    const web3authProvider = await auth.connect({
-      verifier,
-      verifierId: (payload as any).sub,
-      idToken,
-    });
-    console.log({ web3authProvider });
-    setProvider(web3authProvider);
+    // const auth = web3auth();
+    // if (!auth) {
+    //   console.log("missing web3 auth: ", { auth });
+    //   uiConsole("web3auth not initialized yet");
+    //   return;
+    // }
+    //
+    // // login with firebase
+    // const loginRes = await signInWithGoogle();
+    // // get the id token from firebase
+    // const idToken = await loginRes.user.getIdToken(true);
+    // const { payload } = decodeToken(idToken);
+    //
+    // const web3authProvider = await auth.connect({
+    //   verifier,
+    //   verifierId: (payload as any).sub,
+    //   idToken,
+    // });
+    // console.log({ web3authProvider });
+    // setProvider(web3authProvider);
   };
 
   const authenticateUser = async () => {
