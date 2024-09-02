@@ -4,7 +4,7 @@ export default defineConfig({
   ssr: false,
   server: {
     preset: "cloudflare-pages",
-    alias: { "process/": "process" },
+    // alias: { "process/": "process" },
     esbuild: {
       options: {
         // We need BigInt support (default: 2019)
