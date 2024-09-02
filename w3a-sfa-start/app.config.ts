@@ -1,5 +1,4 @@
 import { defineConfig } from "@solidjs/start/config";
-import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 export default defineConfig({
   ssr: false,
@@ -14,17 +13,8 @@ export default defineConfig({
     },
   },
   vite: {
-    plugins: [
-      nodePolyfills({ globals: { Buffer: true, global: true, process: true } }),
-    ],
     define: {
       global: "globalThis",
     },
-    // ssr: {
-    // noExternal: [/@web3auth/, /toruslabs/, /events/],
-    // optimizeDeps: {
-    //   include: ["@web3auth/*", "toruslabs/*", "events"],
-    // },
-    // },
   },
 });
