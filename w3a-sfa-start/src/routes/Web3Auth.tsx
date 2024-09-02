@@ -1,9 +1,7 @@
-import { Web3Auth } from "@web3auth/single-factor-auth/dist/singleFactorAuth.esm";
+import { Web3Auth, decodeToken } from "@web3auth/single-factor-auth";
 import {
   CHAIN_NAMESPACES,
   WEB3AUTH_NETWORK,
-  WALLET_ADAPTERS,
-  IWeb3Auth,
   IProvider,
 } from "@web3auth/base";
 import { SolanaPrivateKeyProvider } from "@web3auth/solana-provider";
@@ -20,18 +18,35 @@ import {
 import RPC from "../lib/solana-rpc";
 
 const web3AuthClientId =
-  "BNBNpzCHEqOG-LIYygpzo7wsN8PDLjPjoh6GnuAwJth_prYW-pdy2O7kqE0C5lrGCnlJfCZx4_OEItGTcti6q1A"; // get from https://dashboard.web3auth.io
+  "BPi5PB_UiIZ-cPz1GtV5i1I2iOSOHuimiXBI0e-Oe_u6X3oVAbCiAZOTEBtTXw4tsluTITPqA8zMsfxIKMjiqNQ"; // get from https://dashboard.web3auth.io
+
+// Firebase libraries for custom authentication
+import { initializeApp } from "firebase/app";
+import { GoogleAuthProvider, getAuth, signInWithPopup, UserCredential } from "firebase/auth";
+
+const verifier = "w3a-firebase-demo";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB0nd9YsPLu-tpdCrsXn8wgsWVAiYEpQ_E",
+  authDomain: "web3auth-oauth-logins.firebaseapp.com",
+  projectId: "web3auth-oauth-logins",
+  storageBucket: "web3auth-oauth-logins.appspot.com",
+  messagingSenderId: "461819774167",
+  appId: "1:461819774167:web:e74addfb6cc88f3b5b9c92",
+};
 
 // const aggregateVerifierIdentifier = "w3a-universal-verifier";
 // const redirectUrl = "https://w3a-nomodal-start.pages.dev";
 
 export const W3Auth: VoidComponent = () => {
-  const [web3auth] = createSignal<IWeb3Auth | undefined>();
-  const [provider, setProvider] = createSignal<IProvider | undefined>();
+  const [web3auth, setWeb3Auth] = createSignal<Web3Auth | undefined>();
+  const [provider, setProvider] = createSignal<IProvider | null>();
   const loggedIn = createMemo(() => {
     const web3 = web3auth();
     return web3?.connected ?? false;
   });
+
+  const app = initializeApp(firebaseConfig);
 
   const status = createMemo(() => {
     const web3 = web3auth();
@@ -77,62 +92,15 @@ export const W3Auth: VoidComponent = () => {
       const web3auth = new Web3Auth({
         clientId: web3AuthClientId,
         privateKeyProvider,
-        web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
+        web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_MAINNET,
       });
 
       console.log({ web3auth });
-      // const openloginAdapter = new OpenloginAdapter({
-      //   privateKeyProvider,
-      //   adapterSettings: {
-      //     network: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
-      //     uxMode: UX_MODE.POPUP,
-      //     // redirectUrl:
-      //     //   "https://dev-n82s5hbtzoxieejz.us.auth0.com/login/callback",
-      //     // redirectUrl,
-      //     loginConfig: {
-      //       google: {
-      //         name: "Google",
-      //         typeOfLogin: "jwt",
-      //         clientId: "Di3KAujLiJzPM3a4rVOOdiLLMxA5qanl",
-      //         verifier: aggregateVerifierIdentifier,
-      //         verifierSubIdentifier: "w3a-a0-google",
-      //         jwtParameters: {
-      //           domain: "https://dev-n82s5hbtzoxieejz.us.auth0.com",
-      //           verifierIdField: "email",
-      //         },
-      //       },
-      //       discord: {
-      //         name: "Discord",
-      //         typeOfLogin: "discord",
-      //         verifier: aggregateVerifierIdentifier,
-      //         verifierSubIdentifier: "w3a-discord",
-      //         clientId: "1275709031138463754",
-      //       },
-      //     },
-      //   },
-      // });
 
-      // web3auth.configureAdapter(openloginAdapter);
-      //
-      // setProvider(web3auth.provider ?? undefined);
-      // web3auth.on(ADAPTER_EVENTS.CONNECTED, () => {
-      //   console.log("### web3auth connected");
-      // });
-      // web3auth.on(ADAPTER_EVENTS.DISCONNECTED, () => {
-      //   console.log("### web3auth disconnected");
-      // });
-      // web3auth.on(ADAPTER_EVENTS.CONNECTING, () => {
-      //   console.log("### web3auth connecting");
-      // });
-      // web3auth.on(ADAPTER_EVENTS.ERRORED, (error) => {
-      //   console.error("### web3auth error", error);
-      // });
-      // await web3auth.init();
-      //
-      // setWeb3auth(web3auth);
-      //
-      // const userInfo = await web3auth.getUserInfo();
-      // console.log({ connected: web3auth.connected, userInfo });
+      await web3auth.init();
+      setWeb3Auth(web3auth);
+      setProvider(web3auth.provider);
+    
     } catch (error) {
       console.error(error);
     }
@@ -145,6 +113,19 @@ export const W3Auth: VoidComponent = () => {
     }
   }
 
+  const signInWithGoogle = async (): Promise<UserCredential> => {
+    try {
+      const auth = getAuth(app);
+      const googleProvider = new GoogleAuthProvider();
+      const res = await signInWithPopup(auth, googleProvider);
+      console.log(res);
+      return res;
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  };
+
   const login = async () => {
     console.log("login!");
     const auth = web3auth();
@@ -153,21 +134,20 @@ export const W3Auth: VoidComponent = () => {
       uiConsole("web3auth not initialized yet");
       return;
     }
-    const web3authProvider = await auth.connectTo(WALLET_ADAPTERS.OPENLOGIN, {
-      loginProvider: "google",
-      // extraLoginOptions: {
-      //   redirect_uri:
-      //     "https://dev-n82s5hbtzoxieejz.us.auth0.com/login/callback",
-      //   domain: auth0domainUrl,
-      //   // this corresponds to the field inside jwt which must be used to uniquely
-      //   // identify the user. This is mapped b/w google and github logins
-      //   verifierIdField: "email",
-      //   isVerifierIdCaseSensitive: false,
-      //   connection: "google-oauth2",
-      // },
+
+   // login with firebase
+    const loginRes = await signInWithGoogle();
+    // get the id token from firebase
+    const idToken = await loginRes.user.getIdToken(true);
+    const { payload } = decodeToken(idToken);
+
+    const web3authProvider = await auth.connect({
+      verifier,
+      verifierId: (payload as any).sub,
+      idToken,
     });
     console.log({ web3authProvider });
-    setProvider(web3authProvider ?? undefined);
+    setProvider(web3authProvider);
   };
 
   const authenticateUser = async () => {
