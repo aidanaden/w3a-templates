@@ -21,7 +21,6 @@ import { TorusStorageLayer } from "@tkey/storage-layer-torus";
 import { SessionManager } from "@toruslabs/session-manager";
 import { AggregateLoginParams } from "@toruslabs/customauth";
 import { Keypair } from "@solana/web3.js";
-
 // import SolanaRpc from "./rpc";
 
 const web3AuthClientId =
@@ -35,6 +34,7 @@ const storageLayer = new TorusStorageLayer({
 const auth0domainUrl = "https://dev-n82s5hbtzoxieejz.us.auth0.com";
 const auth0ClientId = "Di3KAujLiJzPM3a4rVOOdiLLMxA5qanl";
 const aggregateVerifierIdentifier = "w3a-universal-verifier";
+// const redirect_uri = "http://localhost:3000";
 const redirect_uri = "https://w3a-tkey-start.pages.dev";
 const serviceProvider = new TorusServiceProvider({
   enableLogging: true,
@@ -102,33 +102,13 @@ const Home: Component = () => {
         ).customAuthInstance.storageHelper.retrieveLoginDetails(sessionId);
         console.log({ loginDetails });
 
-        const loginArgs = loginDetails.args as AggregateLoginParams;
-        const subInfos = loginArgs.subVerifierDetailsArray.map((s) => ({
-          idToken: s.clientId,
-          verifier: s.verifier,
-        }));
-
-        console.log({ aggregateVerifierIdentifier, subInfos });
-
-        // await (
-        //   tKey.modules.webStorage as WebStorageModule
-        // ).inputShareFromWebStorage();
-
-        const res = await (
-          tKey.serviceProvider as TorusServiceProvider
-        ).customAuthInstance
-          .getAggregateTorusKey(
-            aggregateVerifierIdentifier,
-            userInfo.email,
-            subInfos,
-          )
-          .catch((e) => {
-            console.error("getAggregateTorusKey error: ", { e });
-          });
-
-        console.log("torus key: ", { res });
         await reconstructKey();
 
+        batch(() => {
+          setTKeyInitialised(true);
+          setLoginRes({userInfo: [userInfo]} as any);
+          setUserInfo(userInfo);
+        });
         // console.log("existing session user info: ", { res });
       }
 
@@ -190,19 +170,22 @@ const Home: Component = () => {
         console.log("tkey.initialize() complete!");
 
         if (result2.requiredShares > 0) {
+          // try to get share from web storage
           try {
             await (tKey.modules.webStorage as any).inputShareFromWebStorage();
+            console.log("inputShareFromWebStorage() complete!");
           } catch (e) {
-            console.error("inputShareFromWebStorage() error: ", { e });
+            console.error("Device Share not found, Please enter your backup shares");
+            throw new Error("Device Share not found, Please enter your backup shares");
           }
+
         }
 
         try {
           await tKey.reconstructKey();
         } catch (e) {
           console.error("reconstructKey() error: ", { e });
-        }
-        await tKey.reconstructKey();
+        }        
         await tKey.syncLocalMetadataTransitions();
 
         console.log("reconstructKey() complete!");
