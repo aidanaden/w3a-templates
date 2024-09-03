@@ -11,6 +11,9 @@ importers:
       '@solana/web3.js':
         specifier: ^1.95.2
         version: 1.95.3(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@solid-primitives/context':
+        specifier: ^0.2.3
+        version: 0.2.3(solid-js@1.8.22)
       '@solid-primitives/storage':
         specifier: ^4.2.0
         version: 4.2.0(solid-js@1.8.22)
@@ -976,6 +979,11 @@ packages:
 
   '@solana/web3.js@1.95.3':
     resolution: {integrity: sha512-O6rPUN0w2fkNqx/Z3QJMB9L225Ex10PRDH8bTaIUPZXMPV0QP8ZpPvjQnXK+upUczlRgzHzd6SjKIha1p+I6og==}
+
+  '@solid-primitives/context@0.2.3':
+    resolution: {integrity: sha512-6/e8qu9qJf48FJ+sxc/B782NdgFw5TvI8+r6U0gHizumfZcWZg8FAJqvRZAiwlygkUNiTQOGTeO10LVbMm0kvg==}
+    peerDependencies:
+      solid-js: ^1.6.12
 
   '@solid-primitives/storage@4.2.0':
     resolution: {integrity: sha512-UoTtfa6CQ7B3SoEa8xwPt576bzkTJpevNYcfFfJbCArSh7ESXOAFKkYobLutNSiPI2NunpZDIfydMm+0jufyDw==}
@@ -3944,6 +3952,10 @@ snapshots:
       - bufferutil
       - encoding
       - utf-8-validate
+
+  '@solid-primitives/context@0.2.3(solid-js@1.8.22)':
+    dependencies:
+      solid-js: 1.8.22
 
   '@solid-primitives/storage@4.2.0(solid-js@1.8.22)':
     dependencies:

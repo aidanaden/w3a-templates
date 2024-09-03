@@ -3,6 +3,7 @@ import { FileRoutes } from "@solidjs/start/router";
 import { Suspense } from "solid-js";
 import Nav from "./components/Nav";
 import "./app.css";
+import { AuthProvider } from "./contexts/useAuth";
 
 export default function App() {
   return (
@@ -14,7 +15,9 @@ export default function App() {
         </>
       )}
     >
-      <FileRoutes />
+      <AuthProvider>
+        <FileRoutes />
+      </AuthProvider>
     </Router>
   );
 }

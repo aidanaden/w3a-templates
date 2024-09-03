@@ -1,18 +1,9 @@
 import { NodeDetailManager } from "@toruslabs/fetch-node-details";
 // IMP START - Quick Start
 import { Torus, TorusKey } from "@toruslabs/torus.js";
-import {
-  Show,
-  VoidComponent,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-  onMount,
-} from "solid-js";
-import { makePersisted } from "@solid-primitives/storage";
+import { Show, VoidComponent, createMemo, onMount } from "solid-js";
 
-import RPC from "../lib/solana-rpc";
+import { useAuth } from "~/contexts/useAuth";
 
 const web3AuthClientId =
   "BPi5PB_UiIZ-cPz1GtV5i1I2iOSOHuimiXBI0e-Oe_u6X3oVAbCiAZOTEBtTXw4tsluTITPqA8zMsfxIKMjiqNQ"; // get from https://dashboard.web3auth.io
@@ -33,21 +24,10 @@ const web3AuthClientId =
 // const redirectUrl = "https://w3a-nomodal-start.pages.dev";
 
 export const W3Auth: VoidComponent = () => {
+  const { loginTwitter } = useAuth();
   // const [web3auth, setWeb3Auth] = createSignal<Web3Auth | undefined>();
   // const [provider, setProvider] = createSignal<IProvider | null>();
 
-  const [oauthTokenSecret, setOauthTokenSecret] = makePersisted(
-    createSignal<string | undefined>(),
-    { name: "oauth_token_secret" },
-  );
-  const [accessToken, setAccessToken] = makePersisted(
-    createSignal<string | undefined>(),
-    { name: "access" },
-  );
-  const [refreshToken, setRefreshToken] = makePersisted(
-    createSignal<string | undefined>(),
-    { name: "refresh" },
-  );
   const loggedIn = createMemo(() => {
     return true;
     //   const web3 = web3auth();
@@ -126,45 +106,36 @@ export const W3Auth: VoidComponent = () => {
     }
   }
 
-  const stagingApiUrl = "https://ape-api.aidan-267.workers.dev/api/v1";
-
-  const loginTwitter = async () => {
-    console.log("login!");
-    const res: { redirect_url: string; oauth_token_secret: string } =
-      await fetch(`${stagingApiUrl}/signin/twitter`).then((r) => r.json());
-    console.log({ res });
-
-    //@ts-ignore
-    setOauthTokenSecret(res.oauth_token_secret);
-
-    window.location.href = res.redirect_url;
-
-    // const auth = web3auth();
-    // if (!auth) {
-    //   console.log("missing web3 auth: ", { auth });
-    //   uiConsole("web3auth not initialized yet");
-    //   return;
-    // }
-    //
-    // // login with firebase
-    // const loginRes = await signInWithGoogle();
-    // // get the id token from firebase
-    // const idToken = await loginRes.user.getIdToken(true);
-    // const { payload } = decodeToken(idToken);
-    //
-    // const web3authProvider = await auth.connect({
-    //   verifier,
-    //   verifierId: (payload as any).sub,
-    //   idToken,
-    // });
-    // console.log({ web3authProvider });
-    // setProvider(web3authProvider);
-  };
-
-  createEffect(() => {
-    //@ts-ignore
-    console.log({ oauthTokenSecret: oauthTokenSecret() });
-  });
+  // const loginTwitter = async () => {
+  //   console.log("login!");
+  //   const res = await     console.log({ res });
+  //
+  //   //@ts-ignore
+  //   setOauthTokenSecret(res.oauth_token_secret);
+  //
+  //   window.location.href = res.redirect_url;
+  //
+  //   // const auth = web3auth();
+  //   // if (!auth) {
+  //   //   console.log("missing web3 auth: ", { auth });
+  //   //   uiConsole("web3auth not initialized yet");
+  //   //   return;
+  //   // }
+  //   //
+  //   // // login with firebase
+  //   // const loginRes = await signInWithGoogle();
+  //   // // get the id token from firebase
+  //   // const idToken = await loginRes.user.getIdToken(true);
+  //   // const { payload } = decodeToken(idToken);
+  //   //
+  //   // const web3authProvider = await auth.connect({
+  //   //   verifier,
+  //   //   verifierId: (payload as any).sub,
+  //   //   idToken,
+  //   // });
+  //   // console.log({ web3authProvider });
+  //   // setProvider(web3authProvider);
+  // };
 
   const authenticateUser = async () => {
     //   const auth = web3auth();
