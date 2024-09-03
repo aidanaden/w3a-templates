@@ -41,7 +41,8 @@ const Page: Component = () => {
   // });
 
   createEffect(() => {
-    console.log({ searchParams });
+    const { oauth_token, oauth_verifier } = searchParams;
+    console.log({ oauth_token, oauth_verifier });
   });
 
   return (
