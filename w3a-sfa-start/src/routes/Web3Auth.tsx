@@ -6,9 +6,11 @@ import {
   VoidComponent,
   createEffect,
   createMemo,
+  createSignal,
   on,
   onMount,
 } from "solid-js";
+import { makePersisted } from "@solid-primitives/storage";
 
 import RPC from "../lib/solana-rpc";
 
@@ -33,6 +35,19 @@ const web3AuthClientId =
 export const W3Auth: VoidComponent = () => {
   // const [web3auth, setWeb3Auth] = createSignal<Web3Auth | undefined>();
   // const [provider, setProvider] = createSignal<IProvider | null>();
+
+  const [oauthTokenSecret, setOauthTokenSecret] = makePersisted(
+    createSignal<string | undefined>(),
+    { name: "oauth_token_secret" },
+  );
+  const [accessToken, setAccessToken] = makePersisted(
+    createSignal<string | undefined>(),
+    { name: "access" },
+  );
+  const [refreshToken, setRefreshToken] = makePersisted(
+    createSignal<string | undefined>(),
+    { name: "refresh" },
+  );
   const loggedIn = createMemo(() => {
     return true;
     //   const web3 = web3auth();
@@ -111,8 +126,19 @@ export const W3Auth: VoidComponent = () => {
     }
   }
 
-  const login = async () => {
+  const stagingApiUrl = "https://ape-api.aidan-267.workers.dev/api/v1";
+
+  const loginTwitter = async () => {
     console.log("login!");
+    const res: { redirect_url: string; oauth_token_secret: string } =
+      await fetch(`${stagingApiUrl}/signin/twitter`).then((r) => r.json());
+    console.log({ res });
+
+    //@ts-ignore
+    setOauthTokenSecret(res.oauth_token_secret);
+
+    window.location.href = res.redirect_url;
+
     // const auth = web3auth();
     // if (!auth) {
     //   console.log("missing web3 auth: ", { auth });
@@ -134,6 +160,11 @@ export const W3Auth: VoidComponent = () => {
     // console.log({ web3authProvider });
     // setProvider(web3authProvider);
   };
+
+  createEffect(() => {
+    //@ts-ignore
+    console.log({ oauthTokenSecret: oauthTokenSecret() });
+  });
 
   const authenticateUser = async () => {
     //   const auth = web3auth();
@@ -295,7 +326,7 @@ export const W3Auth: VoidComponent = () => {
       <button
         onClick={async () => {
           console.log("login pressed!");
-          await login();
+          await loginTwitter();
         }}
       >
         Login
@@ -308,7 +339,7 @@ export const W3Auth: VoidComponent = () => {
             <button
               onClick={async () => {
                 console.log("login pressed!");
-                await login();
+                await loginTwitter();
               }}
               class="card"
             >
