@@ -10,14 +10,14 @@ export default function App() {
     <Router
       root={(props) => (
         <>
-          <Nav />
-          <Suspense>{props.children}</Suspense>
+          <AuthProvider>
+            <Nav />
+            <Suspense>{props.children}</Suspense>
+          </AuthProvider>
         </>
       )}
     >
-      <AuthProvider>
-        <FileRoutes />
-      </AuthProvider>
+      <FileRoutes />
     </Router>
   );
 }
