@@ -1,12 +1,11 @@
-import { Web3Auth } from "@web3auth/single-factor-auth";
-import { CHAIN_NAMESPACES, WEB3AUTH_NETWORK, IProvider } from "@web3auth/base";
-import { SolanaPrivateKeyProvider } from "@web3auth/solana-provider";
+import { NodeDetailManager } from "@toruslabs/fetch-node-details";
+// IMP START - Quick Start
+import { Torus, TorusKey } from "@toruslabs/torus.js";
 import {
   Show,
   VoidComponent,
   createEffect,
   createMemo,
-  createSignal,
   on,
   onMount,
 } from "solid-js";
@@ -32,67 +31,74 @@ const web3AuthClientId =
 // const redirectUrl = "https://w3a-nomodal-start.pages.dev";
 
 export const W3Auth: VoidComponent = () => {
-  const [web3auth, setWeb3Auth] = createSignal<Web3Auth | undefined>();
-  const [provider, setProvider] = createSignal<IProvider | null>();
+  // const [web3auth, setWeb3Auth] = createSignal<Web3Auth | undefined>();
+  // const [provider, setProvider] = createSignal<IProvider | null>();
   const loggedIn = createMemo(() => {
-    const web3 = web3auth();
-    return web3?.connected ?? false;
+    return true;
+    //   const web3 = web3auth();
+    //   return web3?.connected ?? false;
   });
 
   // const app = initializeApp(firebaseConfig);
 
-  const status = createMemo(() => {
-    const web3 = web3auth();
-    return web3?.status;
-  });
+  // const status = createMemo(() => {
+  //   const web3 = web3auth();
+  //   return web3?.status;
+  // });
 
-  createEffect(() => {
-    console.log({ status: status() });
-  });
+  // createEffect(() => {
+  //   console.log({ status: status() });
+  // });
+  //
+  // createEffect(() => {
+  //   console.log({ loggedIn: loggedIn() });
+  // });
 
-  createEffect(() => {
-    console.log({ loggedIn: loggedIn() });
-  });
-
-  const rpc = createMemo(() => {
-    const prov = provider();
-    if (!prov) {
-      return;
-    }
-    return new RPC(prov);
-  });
-  createEffect(() => {
-    console.log({ rpc: rpc(), provider: provider() });
-  });
+  // const rpc = createMemo(() => {
+  //   const prov = provider();
+  //   if (!prov) {
+  //     return;
+  //   }
+  //   return new RPC(prov);
+  // });
+  // createEffect(() => {
+  //   console.log({ rpc: rpc(), provider: provider() });
+  // });
 
   onMount(async () => {
     console.log("on mount!");
+    const nodeDetailManagerInstance = new NodeDetailManager({
+      network: "sapphire_mainnet",
+    });
+    const torusInstance = new Torus({
+      clientId: web3AuthClientId,
+      enableOneKey: true,
+      network: "sapphire_mainnet",
+    });
+
+    const verifierId = "email_from_jwt_payload";
+
     try {
-      const chainConfig = {
-        chainNamespace: CHAIN_NAMESPACES.SOLANA,
-        chainId: "0x3", // Please use 0x1 for Mainnet, 0x2 for Testnet, 0x3 for Devnet
-        rpcTarget: "https://api.devnet.solana.com",
-        displayName: "Solana Devnet",
-        blockExplorerUrl: "https://explorer.solana.com",
-        ticker: "SOL",
-        tickerName: "Solana Token",
-        logo: "SOL",
-      };
-      const privateKeyProvider = new SolanaPrivateKeyProvider({
-        config: { chainConfig },
+      const { torusNodeEndpoints, torusIndexes, torusNodePub } =
+        await nodeDetailManagerInstance.getNodeDetails({
+          verifier: "w3a-custom-jwt",
+          verifierId,
+        });
+
+      const torusKey: TorusKey = await torusInstance.retrieveShares({
+        endpoints: torusNodeEndpoints,
+        indexes: torusIndexes,
+        verifier: "w3a-custom-jwt",
+        verifierParams: { verifier_id: verifierId },
+        idToken: "id_from_jwt_payload",
+        nodePubkeys: torusNodePub,
+        useDkg: true,
       });
 
-      const web3auth = new Web3Auth({
-        clientId: web3AuthClientId,
-        privateKeyProvider,
-        web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_MAINNET,
-      });
-
-      console.log({ web3auth });
-
-      await web3auth.init();
-      setWeb3Auth(web3auth);
-      setProvider(web3auth.provider);
+      const { privKey } = torusKey.finalKeyData;
+      console.log({ privKey });
+      // setWeb3Auth(web3auth);
+      // setProvider(web3auth.provider);
     } catch (error) {
       console.error(error);
     }
@@ -130,25 +136,27 @@ export const W3Auth: VoidComponent = () => {
   };
 
   const authenticateUser = async () => {
-    const auth = web3auth();
-    if (!auth) {
-      uiConsole("web3auth not initialized yet");
-      return;
-    }
-    const idToken = await auth.authenticateUser();
-    console.log({ idToken });
-    uiConsole(idToken);
+    //   const auth = web3auth();
+    //   if (!auth) {
+    //     uiConsole("web3auth not initialized yet");
+    //     return;
+    //   }
+    //   const idToken = await auth.authenticateUser();
+    //   console.log({ idToken });
+    //   uiConsole(idToken);
   };
 
   const getUserInfo = async () => {
-    const auth = web3auth();
-    if (!auth) {
-      uiConsole("web3auth not initialized yet");
-      return;
-    }
-    const user = await auth.getUserInfo();
-    uiConsole(user);
+    //   const auth = web3auth();
+    //   if (!auth) {
+    //     uiConsole("web3auth not initialized yet");
+    //     return;
+    //   }
+    //   const user = await auth.getUserInfo();
+    //   uiConsole(user);
   };
+
+  const getPrivateKey = async () => {};
   //
   // const logout = async () => {
   //   const auth = web3auth();
@@ -162,24 +170,24 @@ export const W3Auth: VoidComponent = () => {
   // };
   //
   const getAccounts = async () => {
-    const prov = provider();
-    if (!prov) {
-      uiConsole("provider not initialized yet");
-      return;
-    }
-    const rpc = new RPC(prov);
-    const address = await rpc.getAccounts();
-    uiConsole(address);
+    //   const prov = provider();
+    //   if (!prov) {
+    //     uiConsole("provider not initialized yet");
+    //     return;
+    //   }
+    //   const rpc = new RPC(prov);
+    //   const address = await rpc.getAccounts();
+    //   uiConsole(address);
   };
 
   const getBalance = async () => {
-    const _rpc = rpc();
-    if (!_rpc) {
-      uiConsole("provider not initialized yet");
-      return;
-    }
-    const balance = await _rpc.getBalance();
-    uiConsole(balance);
+    //   const _rpc = rpc();
+    //   if (!_rpc) {
+    //     uiConsole("provider not initialized yet");
+    //     return;
+    //   }
+    //   const balance = await _rpc.getBalance();
+    //   uiConsole(balance);
   };
 
   // const sendTransaction = async () => {
@@ -252,23 +260,23 @@ export const W3Auth: VoidComponent = () => {
   //   uiConsole(signedMessage);
   // };
   //
-  const getPrivateKey = async () => {
-    const _rpc = rpc();
-    if (!_rpc) {
-      uiConsole("provider not initialized yet");
-      return;
-    }
-    const privateKey = await _rpc.getPrivateKey();
-    console.log({ privateKey });
-    uiConsole(privateKey);
-  };
+  // const getPrivateKey = async () => {
+  //   const _rpc = rpc();
+  //   if (!_rpc) {
+  //     uiConsole("provider not initialized yet");
+  //     return;
+  //   }
+  //   const privateKey = await _rpc.getPrivateKey();
+  //   console.log({ privateKey });
+  //   uiConsole(privateKey);
+  // };
 
-  createEffect(
-    on(provider, async (prov) => {
-      console.log({ provider: prov });
-      await getPrivateKey();
-    }),
-  );
+  // createEffect(
+  //   on(provider, async (prov) => {
+  //     console.log({ provider: prov });
+  //     await getPrivateKey();
+  //   }),
+  // );
 
   return (
     <main class="m-auto px-8 w-3/5">
