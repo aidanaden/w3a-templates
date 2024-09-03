@@ -1,6 +1,6 @@
 import { makePersisted } from "@solid-primitives/storage";
 import { useNavigate } from "@solidjs/router";
-import { batch, createSignal } from "solid-js";
+import { batch, createEffect, createSignal } from "solid-js";
 import { createContextProvider } from "@solid-primitives/context";
 
 import { ApiClient } from "~/api/ApiClient";
@@ -9,7 +9,7 @@ const [AuthProvider, _useAuth] = createContextProvider(() => {
   const navigate = useNavigate();
 
   const [email, setEmail] = makePersisted(createSignal<string | undefined>(), {
-    name: "screen_name",
+    name: "email",
   });
   const [oauthTokenSecret, setOauthTokenSecret] = makePersisted(
     createSignal<string | undefined>(),
@@ -69,6 +69,11 @@ const [AuthProvider, _useAuth] = createContextProvider(() => {
     // Redirect to twitter url
     window.location.href = redirect_url;
   }
+
+  createEffect(() => {
+    const em = typeof email == "function" ? email() : email;
+    console.log({ email: em ?? "missing email!" });
+  });
 
   // function setInitialRefresh() {
   //   const refreshed = hasRefreshedOnMount();
