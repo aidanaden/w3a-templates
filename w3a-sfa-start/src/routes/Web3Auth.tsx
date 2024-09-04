@@ -20,10 +20,10 @@ const web3AuthClientId =
 //   appId: "1:461819774167:web:e74addfb6cc88f3b5b9c92",
 // };
 
-export declare const TORUS_SAPPHIRE_NETWORK: {
-  readonly SAPPHIRE_DEVNET: "sapphire_devnet";
-  readonly SAPPHIRE_MAINNET: "sapphire_mainnet";
-};
+export const TORUS_SAPPHIRE_NETWORK = {
+  SAPPHIRE_DEVNET: "sapphire_devnet",
+  SAPPHIRE_MAINNET: "sapphire_mainnet",
+} as const;
 export type TORUS_NETWORK =
   (typeof TORUS_SAPPHIRE_NETWORK)[keyof typeof TORUS_SAPPHIRE_NETWORK];
 
