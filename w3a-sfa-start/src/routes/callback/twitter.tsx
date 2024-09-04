@@ -1,5 +1,5 @@
 import { useSearchParams } from "@solidjs/router";
-import { Component, createEffect, onMount } from "solid-js";
+import { Component, onMount } from "solid-js";
 import { useAuth } from "~/contexts/useAuth";
 
 const Page: Component = () => {
@@ -17,7 +17,11 @@ const Page: Component = () => {
       );
       return;
     }
-    await callbackTwitter(oauth_token, oauth_verifier);
+    try {
+      await callbackTwitter(oauth_token, oauth_verifier);
+    } catch (e) {
+      console.error("error callbackTwitter: ", { e });
+    }
   });
 
   return (
