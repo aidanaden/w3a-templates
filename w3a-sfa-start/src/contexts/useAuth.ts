@@ -136,6 +136,7 @@ const [AuthProvider, _useAuth] = createContextProvider(() => {
   return {
     // state
     email,
+    accessToken,
     hasRefreshedOnMount,
 
     // login actions

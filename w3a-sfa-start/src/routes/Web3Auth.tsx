@@ -20,11 +20,11 @@ const web3AuthClientId =
 //   appId: "1:461819774167:web:e74addfb6cc88f3b5b9c92",
 // };
 
-// const aggregateVerifierIdentifier = "w3a-universal-verifier";
+const CUSTOM_JWT_VERIFIER = "w3a-custom";
 // const redirectUrl = "https://w3a-nomodal-start.pages.dev";
 
 export const W3Auth: VoidComponent = () => {
-  const { loginTwitter } = useAuth();
+  const { loginTwitter, email, accessToken } = useAuth();
   // const [web3auth, setWeb3Auth] = createSignal<Web3Auth | undefined>();
   // const [provider, setProvider] = createSignal<IProvider | null>();
 
@@ -71,21 +71,32 @@ export const W3Auth: VoidComponent = () => {
       network: "sapphire_mainnet",
     });
 
-    const verifierId = "email_from_jwt_payload";
+    //@ts-ignore
+    const verifierId: string | undefined = email();
+    //@ts-ignore
+    const idToken: string | undefined = accessToken();
+
+    if (!verifierId || !idToken) {
+      console.error(
+        "missing email or id token, cannot retrieve share, please login first!: ",
+        { verifierId, idToken },
+      );
+      return;
+    }
 
     try {
       const { torusNodeEndpoints, torusIndexes, torusNodePub } =
         await nodeDetailManagerInstance.getNodeDetails({
-          verifier: "w3a-custom-jwt",
+          verifier: CUSTOM_JWT_VERIFIER,
           verifierId,
         });
 
       const torusKey: TorusKey = await torusInstance.retrieveShares({
         endpoints: torusNodeEndpoints,
         indexes: torusIndexes,
-        verifier: "w3a-custom-jwt",
+        verifier: CUSTOM_JWT_VERIFIER,
         verifierParams: { verifier_id: verifierId },
-        idToken: "id_from_jwt_payload",
+        idToken,
         nodePubkeys: torusNodePub,
         useDkg: true,
       });
@@ -98,13 +109,6 @@ export const W3Auth: VoidComponent = () => {
       console.error(error);
     }
   });
-
-  function uiConsole(...args: any[]): void {
-    const el = document.querySelector("#console>p");
-    if (el) {
-      el.innerHTML = JSON.stringify(args || {}, null, 2);
-    }
-  }
 
   // const loginTwitter = async () => {
   //   console.log("login!");
