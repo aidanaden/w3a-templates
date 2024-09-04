@@ -20,7 +20,15 @@ const web3AuthClientId =
 //   appId: "1:461819774167:web:e74addfb6cc88f3b5b9c92",
 // };
 
+export declare const TORUS_SAPPHIRE_NETWORK: {
+  readonly SAPPHIRE_DEVNET: "sapphire_devnet";
+  readonly SAPPHIRE_MAINNET: "sapphire_mainnet";
+};
+export type TORUS_NETWORK =
+  (typeof TORUS_SAPPHIRE_NETWORK)[keyof typeof TORUS_SAPPHIRE_NETWORK];
+
 const CUSTOM_JWT_VERIFIER = "w3a-custom";
+const WEB3AUTH_NETWORK: TORUS_NETWORK = TORUS_SAPPHIRE_NETWORK.SAPPHIRE_DEVNET;
 // const redirectUrl = "https://w3a-nomodal-start.pages.dev";
 
 export const W3Auth: VoidComponent = () => {
@@ -63,12 +71,12 @@ export const W3Auth: VoidComponent = () => {
   onMount(async () => {
     console.log("on mount!");
     const nodeDetailManagerInstance = new NodeDetailManager({
-      network: "sapphire_mainnet",
+      network: WEB3AUTH_NETWORK,
     });
     const torusInstance = new Torus({
       clientId: web3AuthClientId,
       enableOneKey: true,
-      network: "sapphire_mainnet",
+      network: WEB3AUTH_NETWORK,
     });
 
     //@ts-ignore
