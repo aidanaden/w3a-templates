@@ -1,3 +1,4 @@
+import { Keypair } from "@solana/web3.js";
 import { NodeDetailManager } from "@toruslabs/fetch-node-details";
 // IMP START - Quick Start
 import { Torus, TorusKey } from "@toruslabs/torus.js";
@@ -78,6 +79,7 @@ export const W3Auth: VoidComponent = () => {
       clientId: web3AuthClientId,
       enableOneKey: true,
       network: WEB3AUTH_NETWORK,
+      keyType: "ed25519",
     });
 
     //@ts-ignore
@@ -110,8 +112,15 @@ export const W3Auth: VoidComponent = () => {
         useDkg: true,
       });
 
-      const { privKey } = torusKey.finalKeyData;
-      console.log({ privKey });
+      const seedHex = torusKey.finalKeyData.privKey;
+      if (!seedHex) {
+        throw new Error("No private key found");
+      }
+      const seed = Buffer.from(seedHex, "hex");
+      const keyPair = Keypair.fromSeed(new Uint8Array(seed));
+      const privateKey = Buffer.from(keyPair.secretKey).toString("hex");
+      const { publicKey } = keyPair;
+      console.log({ privateKey, publicKey });
       // setWeb3Auth(web3auth);
       // setProvider(web3auth.provider);
     } catch (error) {
