@@ -79,7 +79,7 @@ export const W3Auth: VoidComponent = () => {
       clientId: web3AuthClientId,
       enableOneKey: true,
       network: WEB3AUTH_NETWORK,
-      // keyType: "ed25519",
+      keyType: "ed25519",
     });
 
     //@ts-ignore
@@ -109,7 +109,7 @@ export const W3Auth: VoidComponent = () => {
         verifierParams: { verifier_id: verifierId },
         idToken,
         nodePubkeys: torusNodePub,
-        useDkg: true,
+        // useDkg: true,
       });
 
       const seedHex = torusKey.finalKeyData.privKey;
