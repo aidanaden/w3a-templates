@@ -121,7 +121,7 @@ export const W3Auth: VoidComponent = () => {
         new Uint8Array(seed),
       );
       const { publicKey, privateKey } = keyPair;
-      console.log({ privateKey, publicKey });
+      console.log({ privateKey, publicKey, algo: privateKey.algorithm });
       // setWeb3Auth(web3auth);
       // setProvider(web3auth.provider);
     } catch (error) {
