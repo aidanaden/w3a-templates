@@ -120,7 +120,7 @@ const [AuthProvider, _useAuth] = createContextProvider(() => {
   }
 
   async function loginGoogle() {
-    const { redirect_url, state: _state } = await ApiClient.loginDiscordGet();
+    const { redirect_url, state: _state } = await ApiClient.loginGoogleGet();
 
     //@ts-ignore
     setState(_state);
