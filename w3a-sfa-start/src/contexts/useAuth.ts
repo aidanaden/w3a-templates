@@ -57,6 +57,8 @@ const [AuthProvider, _useAuth] = createContextProvider(() => {
       setAccessToken(access_token);
       //@ts-ignore
       setRefreshToken(refresh_token);
+      //@ts-ignore
+      setOauthTokenSecret();
     });
 
     navigate("/");
@@ -110,6 +112,8 @@ const [AuthProvider, _useAuth] = createContextProvider(() => {
       setAccessToken(access_token);
       //@ts-ignore
       setRefreshToken(refresh_token);
+      //@ts-ignore
+      setState();
     });
 
     navigate("/");
