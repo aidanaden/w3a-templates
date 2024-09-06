@@ -32,7 +32,7 @@ const WEB3AUTH_NETWORK: TORUS_NETWORK = TORUS_SAPPHIRE_NETWORK.SAPPHIRE_DEVNET;
 // const redirectUrl = "https://w3a-nomodal-start.pages.dev";
 
 export const W3Auth: VoidComponent = () => {
-  const { loginTwitter, email, accessToken } = useAuth();
+  const { loginTwitter, loginDiscord, email, accessToken } = useAuth();
   // const [web3auth, setWeb3Auth] = createSignal<Web3Auth | undefined>();
   // const [provider, setProvider] = createSignal<IProvider | null>();
 
@@ -312,7 +312,16 @@ export const W3Auth: VoidComponent = () => {
           await loginTwitter();
         }}
       >
-        Login
+        Login twitter
+      </button>
+
+      <button
+        onClick={async () => {
+          console.log("login pressed!");
+          await loginDiscord();
+        }}
+      >
+        Login discord
       </button>
 
       <div class="flex items-center flex-col">

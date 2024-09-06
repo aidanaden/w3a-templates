@@ -15,6 +15,9 @@ const [AuthProvider, _useAuth] = createContextProvider(() => {
     createSignal<string | undefined>(),
     { name: "oauth_token_secret" },
   );
+  const [state, setState] = makePersisted(createSignal<string | undefined>(), {
+    name: "state",
+  });
   const [accessToken, setAccessToken] = makePersisted(
     createSignal<string | undefined>(),
     { name: "access" },
@@ -68,6 +71,48 @@ const [AuthProvider, _useAuth] = createContextProvider(() => {
 
     // Redirect to twitter url
     window.location.href = redirect_url;
+  }
+
+  async function loginDiscord() {
+    const { redirect_url, state: _state } = await ApiClient.loginDiscordGet();
+
+    //@ts-ignore
+    setState(_state);
+
+    // Redirect to twitter url
+    window.location.href = redirect_url;
+  }
+
+  async function callbackDiscord(code: string, state: string) {
+    //@ts-ignore
+    const _state = state();
+    if (!_state) {
+      console.error(
+        "callback: FAILED, state recieved from original discord signin request missing!",
+      );
+      return;
+    }
+    if (_state !== state) {
+      console.error("callback: FAILED, mismatched state values!", {
+        state,
+        _state,
+      });
+    }
+    const { email, access_token, refresh_token } =
+      await ApiClient.callbackDiscordGet({
+        code,
+      });
+
+    batch(() => {
+      //@ts-ignore
+      setEmail(email);
+      //@ts-ignore
+      setAccessToken(access_token);
+      //@ts-ignore
+      setRefreshToken(refresh_token);
+    });
+
+    navigate("/");
   }
 
   createEffect(() => {
@@ -142,6 +187,8 @@ const [AuthProvider, _useAuth] = createContextProvider(() => {
     // login actions
     loginTwitter,
     callbackTwitter,
+    loginDiscord,
+    callbackDiscord,
     // refresh,
     // logout,
 
