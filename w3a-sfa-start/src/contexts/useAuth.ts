@@ -83,7 +83,7 @@ const [AuthProvider, _useAuth] = createContextProvider(() => {
     window.location.href = redirect_url;
   }
 
-  async function callbackDiscord(code: string, state: string) {
+  async function callbackDiscord(code: string, receivedState: string) {
     //@ts-ignore
     const _state = state();
     if (!_state) {
@@ -92,7 +92,7 @@ const [AuthProvider, _useAuth] = createContextProvider(() => {
       );
       return;
     }
-    if (_state !== state) {
+    if (_state !== receivedState) {
       console.error("callback: FAILED, mismatched state values!", {
         state,
         _state,
