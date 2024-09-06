@@ -1,4 +1,4 @@
-import { Keypair } from "@solana/web3.js";
+import { createKeyPairFromPrivateKeyBytes } from "@solana/web3.js";
 import { NodeDetailManager } from "@toruslabs/fetch-node-details";
 // IMP START - Quick Start
 import { Torus, TorusKey } from "@toruslabs/torus.js";
@@ -117,9 +117,10 @@ export const W3Auth: VoidComponent = () => {
         throw new Error("No private key found");
       }
       const seed = Buffer.from(seedHex, "hex");
-      const keyPair = Keypair.fromSeed(new Uint8Array(seed));
-      const privateKey = Buffer.from(keyPair.secretKey).toString("hex");
-      const { publicKey } = keyPair;
+      const keyPair = await createKeyPairFromPrivateKeyBytes(
+        new Uint8Array(seed),
+      );
+      const { publicKey, privateKey } = keyPair;
       console.log({ privateKey, publicKey });
       // setWeb3Auth(web3auth);
       // setProvider(web3auth.provider);
