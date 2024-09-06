@@ -1,48 +1,26 @@
 import { useSearchParams } from "@solidjs/router";
-import { Component, createEffect } from "solid-js";
+import { Component, createEffect, onMount } from "solid-js";
+import { useAuth } from "~/contexts/useAuth";
 
 const Page: Component = () => {
+  const { callbackGoogle } = useAuth();
   const [searchParams] = useSearchParams<{
     code: string;
     state: string;
   }>();
 
-  // const navigate = useNavigate();
-  // async function callback(access_token: string) {
-  //   const secret = oauthTokenSecret();
-  //   if (!secret) {
-  //     console.error("callback: FAILED, missing oauth_token_secret!");
-  //     return;
-  //   }
-  //   const { screen_name, access_token, refresh_token } =
-  //     await ApiClient.callbackGet({
-  //       oauth_verifier: oauthVerifier,
-  //       oauth_token: oauthToken,
-  //       oauth_token_secret: secret,
-  //     });
-  //   batch(() => {
-  //     setScreenName(screen_name);
-  //     setAccessToken(access_token);
-  //     setRefreshToken(refresh_token);
-  //   });
-  //
-  //   navigate("/");
-  // }
-
   createEffect(() => {
     console.log({ searchParams });
   });
 
-  // onMount(async () => {
-  //   const { oauth_token, oauth_verifier } = searchParams;
-  //   if (!oauth_token || !oauth_verifier) {
-  //     console.error(
-  //       "callback: FAILED, missing oauth_token or oauth_verifier in callback url",
-  //     );
-  //     return;
-  //   }
-  //   await callback(oauth_token, oauth_verifier);
-  // });
+  onMount(async () => {
+    const { code, state } = searchParams;
+    if (!code || !state) {
+      console.error("callback: FAILED, missing code or state in callback url");
+      return;
+    }
+    await callbackGoogle(code, state);
+  });
 
   return (
     <>

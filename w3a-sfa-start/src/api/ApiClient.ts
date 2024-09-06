@@ -22,6 +22,11 @@ type GetDiscordRedirectUrlResponse = {
   state: string;
 };
 
+type GetGoogleRedirectUrlResponse = {
+  redirect_url: string;
+  state: string;
+};
+
 type GetCallbackResponse = {
   email: string;
   access_token: string;
@@ -56,7 +61,7 @@ export class ApiClient extends FetchClient {
   }
 
   /**
-   * GET request to get redirect url for twitter authentication
+   * GET request to get redirect url for discord authentication
    */
   public static async loginDiscordGet(fetchOptions?: RequestInit) {
     return this.get<GetDiscordRedirectUrlResponse>(
@@ -72,6 +77,28 @@ export class ApiClient extends FetchClient {
   ) {
     return this.get<GetCallbackResponse>(
       `${API_URL}/callback/discord`,
+      params,
+      fetchOptions,
+    );
+  }
+
+  /**
+   * GET request to get redirect url for google authentication
+   */
+  public static async loginGoogleGet(fetchOptions?: RequestInit) {
+    return this.get<GetGoogleRedirectUrlResponse>(
+      `${API_URL}/signin/google`,
+      {},
+      fetchOptions,
+    );
+  }
+
+  public static async callbackGoogleGet(
+    params: GetDiscordCallbackRequest,
+    fetchOptions?: RequestInit,
+  ) {
+    return this.get<GetCallbackResponse>(
+      `${API_URL}/callback/google`,
       params,
       fetchOptions,
     );

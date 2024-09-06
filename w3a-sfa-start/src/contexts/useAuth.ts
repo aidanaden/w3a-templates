@@ -119,6 +119,50 @@ const [AuthProvider, _useAuth] = createContextProvider(() => {
     navigate("/");
   }
 
+  async function loginGoogle() {
+    const { redirect_url, state: _state } = await ApiClient.loginDiscordGet();
+
+    //@ts-ignore
+    setState(_state);
+
+    // Redirect to twitter url
+    window.location.href = redirect_url;
+  }
+
+  async function callbackGoogle(code: string, receivedState: string) {
+    //@ts-ignore
+    const _state = state();
+    if (!_state) {
+      console.error(
+        "callback: FAILED, state recieved from original discord signin request missing!",
+      );
+      return;
+    }
+    if (_state !== receivedState) {
+      console.error("callback: FAILED, mismatched state values!", {
+        state,
+        _state,
+      });
+    }
+    const { email, access_token, refresh_token } =
+      await ApiClient.callbackGoogleGet({
+        code,
+      });
+
+    batch(() => {
+      //@ts-ignore
+      setEmail(email);
+      //@ts-ignore
+      setAccessToken(access_token);
+      //@ts-ignore
+      setRefreshToken(refresh_token);
+      //@ts-ignore
+      setState();
+    });
+
+    navigate("/");
+  }
+
   createEffect(() => {
     const em = typeof email == "function" ? email() : email;
     console.log({ email: em ?? "missing email!" });
@@ -193,6 +237,8 @@ const [AuthProvider, _useAuth] = createContextProvider(() => {
     callbackTwitter,
     loginDiscord,
     callbackDiscord,
+    loginGoogle,
+    callbackGoogle,
     // refresh,
     // logout,
 

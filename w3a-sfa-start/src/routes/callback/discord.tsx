@@ -9,28 +9,6 @@ const Page: Component = () => {
     state: string;
   }>();
 
-  // const navigate = useNavigate();
-  // async function callback(access_token: string) {
-  //   const secret = oauthTokenSecret();
-  //   if (!secret) {
-  //     console.error("callback: FAILED, missing oauth_token_secret!");
-  //     return;
-  //   }
-  //   const { screen_name, access_token, refresh_token } =
-  //     await ApiClient.callbackGet({
-  //       oauth_verifier: oauthVerifier,
-  //       oauth_token: oauthToken,
-  //       oauth_token_secret: secret,
-  //     });
-  //   batch(() => {
-  //     setScreenName(screen_name);
-  //     setAccessToken(access_token);
-  //     setRefreshToken(refresh_token);
-  //   });
-  //
-  //   navigate("/");
-  // }
-
   onMount(async () => {
     const { code, state } = searchParams;
     if (!code || !state) {
